@@ -1,0 +1,154 @@
+/* 기본 레이아웃 및 배경 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+  }
+  
+  /* 헤더 스타일 */
+  #header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    position: relative;
+  }
+  #header h1 {
+    margin: 0;
+    font-size: 36px;
+  }
+  #header hr {
+    margin: 10px 0;
+    border: none;
+    border-top: 2px solid #fff;
+  }
+  #header p {
+    margin: 5px 0 0 0;
+    font-size: 16px;
+  }
+  
+  /* 프로필 메뉴 */
+  #profile-menu {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+  }
+  #current-profile {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #fff;
+  }
+  .dropdown {
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    position: absolute;
+    right: 0;
+    top: 50px;
+    min-width: 150px;
+    display: none;
+    z-index: 1000;
+    border-radius: 3px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  }
+  .dropdown a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+  }
+  .dropdown a:hover {
+    background-color: #f1f1f1;
+  }
+  
+  /* 콘텐츠 영역 */
+  #content {
+    padding: 20px;
+  }
+  .page {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  /* 폼 스타일 */
+  form input[type="text"],
+  form input[type="password"],
+  form textarea {
+    display: block;
+    width: 20%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    box-sizing: border-box;
+  }
+  form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  form button:hover {
+    background-color: #45a049;
+  }
+  
+  /* 게시판 헤더 */
+  #board-header {
+    text-align: right;
+    margin-bottom: 10px;
+  }
+  #board-header button {
+    background-color: #2196F3;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  #board-header button:hover {
+    background-color: #0b7dda;
+  }
+  
+  /* 게시글 미리보기 */
+  .post-preview {
+    border-bottom: 1px solid #ccc;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .post-preview:hover {
+    background-color: #f9f9f9;
+  }
+  
+  /* 게시글 수정/삭제 버튼 */
+  #post-actions button {
+    background-color: #FF9800;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    margin-right: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  #post-actions button:hover {
+    background-color: #e68a00;
+  }
+  #back-to-board {
+    background-color: #9E9E9E;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  #back-to-board:hover {
+    background-color: #7e7e7e;
+  }
+  
