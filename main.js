@@ -74,40 +74,51 @@ document.getElementById('show-login').addEventListener('click', function(e) {
 });
 
 /********* 회원가입 처리 *********/
-//회원가입 폼으로 진입/ 
-document.getElementById('register-form').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const username = document.getElementById('reg-username').value;
-  const password = document.getElementById('reg-password').value;
-  const passwordConfirm = document.getElementById('reg-password-confirm').value;
-  const name = document.getElementById('reg-name').value;
-  const nickname = document.getElementById('reg-nickname').value;
-  const profileInput = document.getElementById('reg-profile');
+//회원가입 폼으로 진입/ 회원가입을 누르면 이벤트 발생
+document.getElementById('register-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const username = document.getElementById('reg-username').value;
+    const password = document.getElementById('reg-password').value;
+    const passwordConfirm = document.getElementById('reg-password-confirm').value;
+    const name = document.getElementById('reg-name').value;
+    const nickname = document.getElementById('reg-nickname').value;
+    const profileInput = document.getElementById('reg-profile');
+    
+    if (password !== passwordConfirm) {
+      alert("비밀번호가 일치하지 않습니다.");
+      return;
+    }
   
-  if (password !== passwordConfirm) {
-    alert("비밀번호가 일치하지 않습니다.");
-    return;
-  }
-  // 중복 아이디 검사
-  if (users.find(u => u.username === username)) {
-    alert("이미 존재하는 아이디입니다.");
-    return;
-  }
-  // 프로필 사진 처리 (업로드한 파일이 없으면 기본 이미지 사용)
-  let profilePic = "";
-  if (profileInput.files && profileInput.files[0]) {
-    profilePic = URL.createObjectURL(profileInput.files[0]);
-  } else {
-    profilePic = "https://via.placeholder.com/40";
-  }
-  const newUser = { username, password, name, nickname, profilePic };
-  users.push(newUser);
-  alert("회원가입이 완료되었습니다. 로그인 해주세요.");
-  showPage('login-page');
-});
+    let profilePic = "https://via.placeholder.com/40";
+    if (profileInput.files && profileInput.files[0]) {
+      profilePic = URL.createObjectURL(profileInput.files[0]);
+    }
+  
+    const payload = { username, password, name, nickname, profilePic };
+  
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message);
+        showPage('login-page');  // 회원가입 후 로그인 페이지로 이동
+      } else {
+        alert(result.detail);  // 서버에서 반환한 오류 메시지 표시
+      }
+    } catch (error) {
+      alert("서버 오류: 회원가입에 실패했습니다.");
+    }
+  });
+  
 
 /********* 프로필 메뉴 업데이트 *********/
 function updateProfileMenu() {
+    //profile-menu는 로그인 후 보여질 화면 메뉴.
   const profileMenu = document.getElementById('profile-menu');
   if (currentUser) {
     profileMenu.style.display = 'block';
@@ -132,16 +143,17 @@ document.getElementById('logout').addEventListener('click', function(e) {
 /********* 게시판 로드 *********/
 function loadBoard() {
   const postsList = document.getElementById('posts-list');
+  //기존 목록 초기화
   postsList.innerHTML = "";
   posts.forEach(post => {
     const postDiv = document.createElement('div');
     postDiv.className = 'post-preview';
     postDiv.dataset.postId = post.id;
-    postDiv.innerHTML = `
-      <h3>${post.title}</h3>
+    postDiv.innerHTML = 
+    `<h3>${post.title}</h3>
       <p>작성자: ${post.author} | 등록시간: ${post.createdAt} ${post.updatedAt ? "(수정됨: " + post.updatedAt + ")" : ""}</p>
-      <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>
-    `;
+      <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>`;
+      //게시글을 클릭하면 openPost 실행 (게시글 번호를 인자로 받음)
     postDiv.addEventListener('click', function() {
       openPost(post.id);
     });
@@ -162,6 +174,7 @@ document.getElementById('post-form').addEventListener('submit', function(e) {
   const title = document.getElementById('post-title').value;
   const body = document.getElementById('post-body').value;
   const mode = e.target.dataset.mode;
+  //create 모드일 때 처리 로직
   if (mode === "create") {
     const newPost = {
       id: currentPostId++,
@@ -175,10 +188,12 @@ document.getElementById('post-form').addEventListener('submit', function(e) {
       comments: 0,
       views: 0
     };
-    // 최신 글이 위에 보이도록 배열 앞에 추가
+    // 최신 글이 위에 보이도록 배열 앞에 추가 -> unshift
     posts.unshift(newPost);
     alert("게시글이 작성되었습니다.");
-  } else if (mode === "edit") {
+  }
+  //edit 모드일 때 처리 로직 
+  else if (mode === "edit") {
     const postId = parseInt(e.target.dataset.postId);
     const post = posts.find(p => p.id === postId);
     if (post) {
@@ -203,12 +218,11 @@ function openPost(postId) {
   // 게시글 조회수 증가
   post.views++;
   const postContent = document.getElementById('post-content');
-  postContent.innerHTML = `
-    <h2>${post.title}</h2>
+  postContent.innerHTML = 
+   `<h2>${post.title}</h2>
     <p>${post.body}</p>
     <p>작성자: ${post.author} | 등록시간: ${post.createdAt} ${post.updatedAt ? "(수정됨: " + post.updatedAt + ")" : ""}</p>
-    <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>
-  `;
+    <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>`;
   // 현재 사용자가 작성자라면 수정/삭제 버튼 표시
   if (currentUser && currentUser.username === post.username) {
     document.getElementById('post-actions').style.display = 'block';
