@@ -1,7 +1,7 @@
 /********* 더미 데이터 및 상태 변수 *********/
 // user의 리스트들이 들어가있다 -> 현재는 테스트용으로 한 명 들어가있는데, 회원가입하면 계속 안에 들어간다.
 let users = [
-  { username: "test", password: "test", name: "홍길동", nickname: "길동", profilePic: "https://via.placeholder.com/40" }
+  { username: "test", password: "test", name: "김대훈", nickname: "daniel", profilePic: "https://via.placeholder.com/40" }
 ];
 
 let currentUser = null; //현재 로그인한 사용자가 누구인지 파악, 로그아웃을 하면 다시 null로 변화
@@ -12,7 +12,7 @@ let posts = [
     id: 1, 
     title: "첫 번째 게시글", 
     body: "이곳은 게시글 내용입니다.", 
-    author: "길동", 
+    author: "daniel", 
     username: "test", 
     createdAt: new Date().toLocaleString(), 
     updatedAt: null, 
@@ -60,7 +60,7 @@ document.getElementById('login-form').addEventListener('submit', function(e) {
 });
 
 /********* 페이지 전환 이벤트 *********/
-//show-register는 회원이 아니신가요? 텍스트를 클릭한다는 의미
+//show-register는 회원이 아니신가요? 텍스트 의미
 document.getElementById('show-register').addEventListener('click', function(e) {
   e.preventDefault();
   //이거 클릭하면 회원가입 페이지로 전환
@@ -117,10 +117,34 @@ function updateProfileMenu() {
   }
 }
 // 프로필 사진 클릭 시 드롭다운 토글
-document.getElementById('current-profile').addEventListener('click', function() {
-  const dropdown = document.getElementById('profile-dropdown');
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+document.addEventListener("DOMContentLoaded", function () {
+  const profile = document.getElementById("current-profile"); // 프로필 아이콘
+  const dropdown = document.getElementById("profile-dropdown"); // 드롭다운 메뉴
+
+  // 프로필 클릭 시 드롭다운 메뉴 토글 (보였다가, 다시 클릭하면 사라짐)
+  profile.addEventListener("click", function (event) {
+    event.stopPropagation(); // body 클릭 이벤트로 인해 닫히는 것 방지
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  });
+
+  // 빈 화면을 클릭하면 드롭다운 메뉴 닫기
+  document.addEventListener("click", function () {
+    if (dropdown.style.display === "block") {
+      dropdown.style.display = "none";
+    }
+  });
+
+  // 드롭다운 내부 클릭 시 닫히지 않도록 설정
+  dropdown.addEventListener("click", function (event) {
+    event.stopPropagation();
+  });
 });
+
+
+
+//추후 회원정보 수정과 비밀번호 수정 페이지 제작.
+
+
 // 로그아웃 처리
 document.getElementById('logout').addEventListener('click', function(e) {
   e.preventDefault();
