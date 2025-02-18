@@ -12,7 +12,7 @@ let posts = [
     id: 1, 
     title: "첫 번째 게시글", 
     body: "이곳은 게시글 내용입니다.", 
-    author: "daniel", 
+    nickname: "daniel", 
     username: "test", 
     createdAt: new Date().toLocaleString(), 
     updatedAt: null, 
@@ -157,120 +157,120 @@ document.getElementById('logout').addEventListener('click', function(e) {
 function loadBoard() {
   const postsList = document.getElementById('posts-list');
   postsList.innerHTML = "";
-  posts.forEach(post => {
+  posts.forEach((post, index) => {
     const postDiv = document.createElement('div');
     postDiv.className = 'post-preview';
-    postDiv.dataset.postId = post.id;
+    postDiv.dataset.index = index;
     postDiv.innerHTML = `
-      <h3>${post.title}</h3>
-      <p>작성자: ${post.author} | 등록시간: ${post.createdAt} ${post.updatedAt ? "(수정됨: " + post.updatedAt + ")" : ""}</p>
-      <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>
+      <div class="post-title">${post.title}</div>
+      <div class="post-meta">
+        <div class="post-author">
+          <img src="${post.profilePic}" alt="프로필">
+          <span>${post.nickname}</span>
+        </div>
+        <span>${post.createdAt}</span>
+      </div>
     `;
     postDiv.addEventListener('click', function() {
-      openPost(post.id);
+      openPost(index);
     });
     postsList.appendChild(postDiv);
   });
 }
 
-/********* 게시글 작성/수정 페이지 전환 *********/
+/********* 게시글 작성 *********/
 document.getElementById('create-post').addEventListener('click', function() {
-  document.getElementById('post-form-title').innerText = "게시글 작성";
   document.getElementById('post-form').reset();
-  document.getElementById('post-form').dataset.mode = "create";
-  showPage('create-edit-post-page');
+  showPage('post-form-page');
 });
-// 게시글 작성/수정 폼 제출
+
+document.getElementById('edit-post').addEventListener('click', function() {
+  const postIndex = parseInt(document.getElementById('post-detail-page').dataset.index);
+  const post = posts[postIndex];
+
+  if (!post) return;
+
+  // 기존 데이터를 입력 필드에 불러오기
+  document.getElementById('post-title').value = post.title;
+  document.getElementById('post-body').value = post.body;
+
+  // 저장 버튼 클릭 시, 수정 모드로 설정
+  document.getElementById('post-form').dataset.mode = "edit";
+  document.getElementById('post-form').dataset.index = postIndex;
+
+  // 게시글 작성 페이지로 이동
+  showPage('post-form-page');
+});
+
+// 게시글 저장(작성 & 수정)
 document.getElementById('post-form').addEventListener('submit', function(e) {
   e.preventDefault();
   const title = document.getElementById('post-title').value;
   const body = document.getElementById('post-body').value;
   const mode = e.target.dataset.mode;
-  if (mode === "create") {
-    const newPost = {
-      id: currentPostId++,
-      title,
-      body,
-      author: currentUser.nickname,
-      username: currentUser.username,
-      createdAt: new Date().toLocaleString(),
-      updatedAt: null,
-      likes: 0,
-      comments: 0,
-      views: 0
-    };
-    // 최신 글이 위에 보이도록 배열 앞에 추가
-    posts.unshift(newPost);
-    alert("게시글이 작성되었습니다.");
-  } else if (mode === "edit") {
-    const postId = parseInt(e.target.dataset.postId);
-    const post = posts.find(p => p.id === postId);
-    if (post) {
-      post.title = title;
-      post.body = body;
-      post.updatedAt = new Date().toLocaleString();
+
+  if (mode === "edit") {
+      const postIndex = parseInt(e.target.dataset.index);
+      posts[postIndex].title = title;
+      posts[postIndex].body = body;
+      posts[postIndex].updatedAt = new Date().toLocaleString();
       alert("게시글이 수정되었습니다.");
-    }
+  } else {
+      posts.unshift({
+          title,
+          body,
+          nickname: currentUser.nickname,
+          profilePic: currentUser.profilePic,
+          createdAt: new Date().toLocaleString()
+      });
+      alert("게시글이 작성되었습니다.");
   }
+
   loadBoard();
   showPage('board-page');
 });
-// 게시글 작성 취소
+
+
+/********* 게시글 상세보기 *********/
+function openPost(index) {
+  const post = posts[index];
+  if (!post) return;
+
+  document.getElementById('post-detail-page').dataset.index = index; // 게시글 인덱스 저장
+
+  document.getElementById('post-content').innerHTML = `
+    <h2>${post.title}</h2>
+    <p>${post.body}</p>
+    <div class="post-meta">
+      <div class="post-author">
+        <img src="${post.profilePic}" alt="프로필">
+        <span>${post.nickname}</span>
+      </div>
+      <span>${post.createdAt}</span>
+    </div>
+  `;
+
+  showPage('post-detail-page');
+}
+
+
+document.getElementById('delete-post').addEventListener('click', function() {
+  const postIndex = parseInt(document.getElementById('post-detail-page').dataset.index);
+  
+  if (confirm("정말 삭제하시겠습니까?")) {
+      posts.splice(postIndex, 1);
+      alert("게시글이 삭제되었습니다.");
+      loadBoard();
+      showPage('board-page');
+  }
+});
+
+
+/********* 취소 버튼 처리 *********/
 document.getElementById('cancel-post').addEventListener('click', function() {
   showPage('board-page');
 });
 
-/********* 게시글 상세보기 *********/
-function openPost(postId) {
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-  // 게시글 조회수 증가
-  post.views++;
-  const postContent = document.getElementById('post-content');
-  postContent.innerHTML = `
-    <h2>${post.title}</h2>
-    <p>${post.body}</p>
-    <p>작성자: ${post.author} | 등록시간: ${post.createdAt} ${post.updatedAt ? "(수정됨: " + post.updatedAt + ")" : ""}</p>
-    <p>좋아요: ${post.likes} | 댓글: ${post.comments} | 조회수: ${post.views}</p>
-  `;
-  // 현재 사용자가 작성자라면 수정/삭제 버튼 표시
-  if (currentUser && currentUser.username === post.username) {
-    document.getElementById('post-actions').style.display = 'block';
-    document.getElementById('post-actions').dataset.postId = post.id;
-  } else {
-    document.getElementById('post-actions').style.display = 'none';
-  }
-  showPage('post-page');
-}
-
-/********* 게시글 수정 *********/
-document.getElementById('edit-post').addEventListener('click', function() {
-  const postId = parseInt(document.getElementById('post-actions').dataset.postId);
-  const post = posts.find(p => p.id === postId);
-  if (post && currentUser.username === post.username) {
-    document.getElementById('post-title').value = post.title;
-    document.getElementById('post-body').value = post.body;
-    const form = document.getElementById('post-form');
-    form.dataset.mode = "edit";
-    form.dataset.postId = post.id;
-    document.getElementById('post-form-title').innerText = "게시글 수정";
-    showPage('create-edit-post-page');
-  }
-});
-
-/********* 게시글 삭제 *********/
-document.getElementById('delete-post').addEventListener('click', function() {
-  const postId = parseInt(document.getElementById('post-actions').dataset.postId);
-  if (confirm("정말 삭제하시겠습니까?")) {
-    posts = posts.filter(p => p.id !== postId);
-    alert("게시글이 삭제되었습니다.");
-    loadBoard();
-    showPage('board-page');
-  }
-});
-
-/********* 게시글 상세보기에서 목록으로 *********/
 document.getElementById('back-to-board').addEventListener('click', function() {
-  loadBoard();
   showPage('board-page');
 });
